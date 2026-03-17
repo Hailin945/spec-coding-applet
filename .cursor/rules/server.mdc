@@ -1,0 +1,62 @@
+# 后端 AI 编码规范（NestJS + COLA）
+
+参考文档：`docs/ai-coding-guidelines.md`
+
+## 架构分层（强制）
+
+```
+adapter -> application -> domain
+                            ^
+                            |
+        infrastructure 实现 domain 端口
+```
+
+## 模块目录结构
+
+```
+apps/server/src/modules/{domain}/
+├── adapter/
+│   ├── applet/           # 小程序触发源
+│   │   ├── dto/
+│   │   └── {domain}-applet.controller.ts
+│   └── web/              # PC 端触发源
+│       ├── dto/
+│       └── {domain}-web.controller.ts
+├── application/
+│   ├── command/
+│   ├── query/
+│   ├── service/
+│   ├── executor/         # 复杂流程
+│   └── assembler/
+├── domain/
+│   ├── entity/
+│   ├── value-object/
+│   ├── service/
+│   ├── repository/       # 接口
+│   └── event/
+├── infrastructure/
+│   ├── persistence/      # 仓储实现
+│   ├── gateway/          # 防腐层实现
+│   └── mapper/
+└── {domain}.module.ts
+```
+
+## 认证策略
+
+- `adapter/applet/` — 使用 `AppletJwtGuard`（微信 openid + JWT）
+- `adapter/web/` — 使用 `WebJwtGuard`（账号密码 + JWT）
+- 路由前缀：`/applet/{domain}`、`/web/{domain}`
+
+## types 包使用规范
+
+- Response DTO 从 `@spec-coding/types` 导入
+- Command/Query 在 `application/command`、`application/query` 内部定义
+- **禁止** server 依赖 `@spec-coding/api`
+
+## 禁止行为
+
+- domain 层禁止导入 NestJS、Prisma、HTTP 任何框架
+- adapter 层禁止直接使用 PrismaService
+- 禁止在 adapter 层定义 Command/Query
+- 禁止 `any` 类型
+

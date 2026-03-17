@@ -1,0 +1,53 @@
+# 小程序 AI 编码规范（Taro 4.x + React）
+
+## 目录结构
+
+```
+apps/applet/src/
+├── pages/                # 页面（每个页面一个目录）
+│   └── {page}/
+│       ├── index.tsx
+│       └── index.module.scss
+├── components/           # 小程序专用组件
+│   └── {ComponentName}/
+│       ├── index.tsx
+│       └── index.module.scss
+├── hooks/                # 自定义 Hook
+├── stores/               # 状态管理（Zustand）
+├── services/             # 调用 packages/api，做业务编排
+└── utils/                # 小程序专用工具（不放 packages/utils）
+```
+
+## 规范
+
+### 组件
+
+- 使用函数式组件 + Hooks，禁止 Class 组件
+- 样式用 CSS Modules（`.module.scss`）
+- Taro 组件优先用 `@tarojs/components`，禁止用 DOM API
+
+### 状态管理
+
+- 使用 Zustand（轻量，Taro 兼容好）
+- Store 文件放 `stores/{domain}.store.ts`
+- 禁止在组件中直接调用 API，统一通过 store action 调用
+
+### API 调用
+
+- 统一从 `@spec-coding/api` 导入调用函数
+- 禁止在组件中直接写 `Taro.request`
+- 禁止在组件中硬编码 URL
+
+### 认证
+
+- 登录流程：`wx.login()` → 获取 code → 调用后端 `/applet/auth/login` → 拿 JWT
+- JWT 存储在 `Taro.setStorageSync('token', token)`
+- 请求拦截器自动附加 `Authorization: Bearer {token}`
+
+## 禁止行为
+
+- 禁止使用 `document`、`window` 等浏览器 API
+- 禁止直接调用 `Taro.request`（统一走 packages/api）
+- 禁止在 page 里写超过 150 行（提取到组件/hook）
+- 禁止魔法字符串（用 `@spec-coding/constants`）
+

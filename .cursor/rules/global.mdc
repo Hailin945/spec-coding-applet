@@ -1,0 +1,72 @@
+# 全局 AI 编码规范
+
+## 项目架构
+
+这是一个 Monorepo 项目，包含：
+- `apps/applet` - 微信小程序（Taro 4.x + React）
+- `apps/web` - PC 端（Next.js）
+- `apps/server` - 后端（NestJS + Prisma + PostgreSQL，COLA 架构）
+- `packages/types` - 共享类型定义
+- `packages/api` - API 调用封装
+- `packages/utils` - 纯函数工具
+- `packages/constants` - 共享常量
+
+## 依赖规则（严格遵守）
+
+```
+apps/applet  ──┐
+apps/web     ──┼──> packages/api ──> packages/types
+               │                 └──> packages/utils
+               │                      packages/constants
+               │
+apps/server  ──┘──> packages/types（只读）
+```
+
+**禁止**：
+- server 依赖 api 包（api 是客户端层）
+- packages 之间循环依赖
+- 跨 app 直接引用代码
+
+## 开发流程（AI 必须遵守）
+
+### 新增功能时
+
+1. **先定义类型**：在 `packages/types` 中定义 DTO、Entity、Enum
+2. **后端实现**：在 `apps/server` 按 COLA 架构实现
+3. **API 封装**：在 `packages/api` 封装接口调用
+4. **前端调用**：在 `apps/applet` 或 `apps/web` 使用 API
+
+### 修改功能时
+
+1. **类型变更**：先更新 `packages/types`
+2. **后端适配**：修改 `apps/server` 相关代码
+3. **API 适配**：更新 `packages/api` 调用逻辑
+4. **前端适配**：修改前端调用代码
+
+## 代码风格
+
+- 使用 TypeScript，禁止 `any`
+- 函数优先使用箭头函数
+- 导出优先使用命名导出
+- 文件名使用 kebab-case（如 `user-service.ts`）
+- 组件名使用 PascalCase（如 `UserProfile.tsx`）
+- 常量使用 UPPER_SNAKE_CASE
+
+## 命名规范
+
+- DTO：`XxxRequest`、`XxxResponse`
+- Entity：`XxxEntity`
+- Service：`XxxService`
+- Repository：`XxxRepository`
+- Controller：`XxxController`
+- Hook：`useXxx`
+- 工具函数：动词开头（`formatDate`、`validateEmail`）
+
+## 禁止行为
+
+- 不要创建不必要的文件
+- 不要过度抽象
+- 不要在 domain 层使用框架代码
+- 不要在前端直接写业务常量（应放 constants 包）
+- 不要复制粘贴代码（应提取到 utils）
+

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(git -C /Users/hl/Codes/jinko/SX-MI-MES/jinko-mes-server log --oneline --all -20)",
+      "Bash(find:*)"
+    ]
+  }
+}
